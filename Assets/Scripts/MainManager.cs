@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -10,19 +11,31 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public TMP_Text HighScoreText;
     public GameObject GameOverText;
-    
+    public TMP_Text ScoreText;
+
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
 
-    
+    private string m_PlayerName;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        string highScoreName = PlayerPrefs.GetString("HighScoreName", "None");
+
+        HighScoreText.text = $"High Score: {highScore} ({highScoreName})";
+
+        m_PlayerName = PlayerPrefs.GetString("PlayerName", "Player");
+
         const float step = 0.6f;
+
         int perLine = Mathf.FloorToInt(4.0f / step);
         
         int[] pointCountArray = new [] {1,1,2,2,5,5};
@@ -71,6 +84,23 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+        SaveHighScore();
         GameOverText.SetActive(true);
     }
+    void SaveHighScore()
+    {
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+
+        if (m_Points > highScore)
+        {
+            PlayerPrefs.SetInt("HighScore", m_Points);
+            PlayerPrefs.SetString("HighScoreName", m_PlayerName);
+            PlayerPrefs.Save();
+        }
+    }
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
 }
